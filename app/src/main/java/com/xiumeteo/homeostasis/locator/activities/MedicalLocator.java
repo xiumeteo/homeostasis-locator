@@ -239,7 +239,7 @@ public class MedicalLocator extends Activity implements
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
         System.err.println(connectionResult.getErrorCode());
-        Toast.makeText(this, connectionResult.getErrorCode(), Toast.LENGTH_LONG).show();
+        Toast.makeText(this, connectionResult.toString(), Toast.LENGTH_LONG).show();
     }
 
     private LocationRequest createLocationRequest() {
