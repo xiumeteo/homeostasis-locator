@@ -24,12 +24,20 @@ import com.xiumeteo.homeostasis.locator.R;
 import com.xiumeteo.homeostasis.locator.dialogs.AddNewDoctorNameDialog;
 import com.xiumeteo.homeostasis.locator.listeners.OnDeleteDoctorClickListener;
 import com.xiumeteo.homeostasis.locator.listeners.OnLaunchDirectionsClickListener;
+import com.xiumeteo.homeostasis.locator.sync.SyncLocations;
 import com.xiumeteo.homeostasis.model.DoctorLocation;
+import com.xiumeteo.homeostasis.model.DoctorLocationSyncRQ;
+import com.xiumeteo.homeostasis.model.DoctorLocationSyncRS;
+import com.xiumeteo.homeostasis.model.migration.MigrationManager;
 
 import java.util.AbstractList;
+import java.util.ArrayList;
+import java.util.List;
 
 import io.realm.Realm;
+import io.realm.RealmConfiguration;
 import io.realm.RealmResults;
+import retrofit.RestAdapter;
 
 import static android.widget.Toast.*;
 
@@ -45,6 +53,7 @@ public class MedicalLocator extends Activity implements
     private String NO_RESULTS_MESSAGE ;
     private GoogleApiClient locationsServiceClient;
     private Location lastLocation;
+    private SyncLocations syncLocations;
 
     private DialogInterface.OnClickListener onCancel = new DialogInterface.OnClickListener() {
         public void onClick(DialogInterface dialog, int id) {}
@@ -81,7 +90,8 @@ public class MedicalLocator extends Activity implements
         locationsServiceClient.connect();
         onLaunchListener = new OnLaunchDirectionsClickListener(this);
         onDeleteListener = new OnDeleteDoctorClickListener(this);
-        realm = Realm.getInstance(this);
+
+        realm = Realm.getDefaultInstance();
 
         resultsLayout = (LinearLayout) this.findViewById(R.id.searchResults);
         searchField = (EditText) findViewById(R.id.searchDoctorName);
@@ -99,7 +109,7 @@ public class MedicalLocator extends Activity implements
 
             @Override
             public void afterTextChanged(Editable s) {
-                searchForDoctors(null);
+                searchForDoctors();
             }
         });
 
@@ -107,6 +117,12 @@ public class MedicalLocator extends Activity implements
         RealmResults<DoctorLocation> doctorLocations = realm.where(DoctorLocation.class).findAll();
 
         renderDoctorLocations(doctorLocations);
+
+        RestAdapter restAdapter = new RestAdapter.Builder()
+                .setEndpoint("https://peaceful-falls-4143.herokuapp.com/")
+                .build();
+        
+        syncLocations = restAdapter.create(SyncLocations.class);
 
     }
 
@@ -163,9 +179,6 @@ public class MedicalLocator extends Activity implements
         return doctorName;
     }
 
-    public void searchForDoctors(View view) {
-        searchForDoctors();
-    }
 
     public void searchForDoctors() {
         String nameToSearch = searchField.getText().toString();
@@ -199,8 +212,8 @@ public class MedicalLocator extends Activity implements
             location.setLatitude(lastLocation.getLatitude());
             location.setLongitude(lastLocation.getLongitude());
         }else{
-            makeText(getApplicationContext(), R.string.location_not_available, LENGTH_SHORT).show();
-            return;
+            //makeText(getApplicationContext(), R.string.location_not_available, LENGTH_SHORT).show();
+            //return;
         }
 
         TextView doctorNameView = attachMessageToResults(location.getName());
@@ -259,5 +272,25 @@ public class MedicalLocator extends Activity implements
         }
     }
 
+    public void syncDoctorsLocations(View view){
+        RealmResults<DoctorLocation> doctorLocationsToSync = realm.where(DoctorLocation.class)
+                .equalTo("id", "")
+                .findAll();
+
+        List<DoctorLocation> doctorLocationList = new ArrayList<>();
+        for (DoctorLocation doctorLocation: doctorLocationsToSync){
+           doctorLocationList.add(doctorLocation);
+        }
+
+        DoctorLocationSyncRQ doctorLocationSyncRQ = new DoctorLocationSyncRQ();
+        doctorLocationSyncRQ.setData(doctorLocationList);
+
+        DoctorLocationSyncRS syncedObjects = syncLocations.sync(doctorLocationSyncRQ);
+
+        realm.beginTransaction();
+        realm.copyToRealmOrUpdate(syncedObjects.getData());
+        realm.commitTransaction();
+
+    }
 
 }

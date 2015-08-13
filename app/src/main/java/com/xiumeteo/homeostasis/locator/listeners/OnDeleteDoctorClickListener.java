@@ -21,7 +21,7 @@ public class OnDeleteDoctorClickListener implements OnClickListener {
 
     public OnDeleteDoctorClickListener(MedicalLocator context){
         this.context = context;
-        this.realm = Realm.getInstance(context);
+        this.realm = Realm.getDefaultInstance();
     }
 
     public void setDoctorName(String doctorName) {

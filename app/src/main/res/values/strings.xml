@@ -3,7 +3,7 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-    <string name="search">Buscar</string>
+    <string name="sync">Sync</string>
     <string name="saveDoctorLocation">Guardar nuevo doctor</string>
     <string name="doctorNameHint">Ingresa el nombre</string>
     <string name="add">Agregar</string>
