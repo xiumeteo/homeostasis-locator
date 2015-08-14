@@ -60,4 +60,12 @@
         android:text="@string/saveDoctorLocation"
         android:id="@+id/saveDoctorLocation"
         android:onClick="openSaveNewDoctor"/>
+
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/syncProgressBar"
+        android:indeterminate="true"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true" />
 </RelativeLayout>

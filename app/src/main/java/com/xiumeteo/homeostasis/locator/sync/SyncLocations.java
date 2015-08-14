@@ -6,6 +6,7 @@ import com.xiumeteo.homeostasis.model.DoctorLocationSyncRS;
 
 import java.util.List;
 
+import retrofit.Callback;
 import retrofit.http.Body;
 import retrofit.http.POST;
 
@@ -15,6 +16,6 @@ import retrofit.http.POST;
 public interface SyncLocations {
 
     @POST("/sync")
-    DoctorLocationSyncRS sync(@Body DoctorLocationSyncRQ locations);
+    void sync(@Body DoctorLocationSyncRQ locations, Callback<DoctorLocationSyncRS> callback);
 
 }

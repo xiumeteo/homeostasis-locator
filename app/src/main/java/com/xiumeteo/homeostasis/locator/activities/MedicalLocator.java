@@ -13,6 +13,7 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,18 +27,23 @@ import com.xiumeteo.homeostasis.locator.listeners.OnDeleteDoctorClickListener;
 import com.xiumeteo.homeostasis.locator.listeners.OnLaunchDirectionsClickListener;
 import com.xiumeteo.homeostasis.locator.sync.SyncLocations;
 import com.xiumeteo.homeostasis.model.DoctorLocation;
+import com.xiumeteo.homeostasis.model.DoctorLocationEntity;
 import com.xiumeteo.homeostasis.model.DoctorLocationSyncRQ;
 import com.xiumeteo.homeostasis.model.DoctorLocationSyncRS;
 import com.xiumeteo.homeostasis.model.migration.MigrationManager;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.RealmResults;
+import retrofit.Callback;
 import retrofit.RestAdapter;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 
 import static android.widget.Toast.*;
 
@@ -53,6 +59,7 @@ public class MedicalLocator extends Activity implements
     private String NO_RESULTS_MESSAGE ;
     private GoogleApiClient locationsServiceClient;
     private Location lastLocation;
+    private ProgressBar syncProgressBar;
     private SyncLocations syncLocations;
 
     private DialogInterface.OnClickListener onCancel = new DialogInterface.OnClickListener() {
@@ -119,10 +126,12 @@ public class MedicalLocator extends Activity implements
         renderDoctorLocations(doctorLocations);
 
         RestAdapter restAdapter = new RestAdapter.Builder()
+                .setLogLevel(RestAdapter.LogLevel.FULL)
                 .setEndpoint("https://peaceful-falls-4143.herokuapp.com/")
                 .build();
         
         syncLocations = restAdapter.create(SyncLocations.class);
+        syncProgressBar = (ProgressBar) findViewById(R.id.syncProgressBar);
 
     }
 
@@ -273,23 +282,44 @@ public class MedicalLocator extends Activity implements
     }
 
     public void syncDoctorsLocations(View view){
+
+
+
         RealmResults<DoctorLocation> doctorLocationsToSync = realm.where(DoctorLocation.class)
                 .equalTo("id", "")
                 .findAll();
 
-        List<DoctorLocation> doctorLocationList = new ArrayList<>();
+        List<DoctorLocationEntity> doctorLocationList = new ArrayList<>();
         for (DoctorLocation doctorLocation: doctorLocationsToSync){
-           doctorLocationList.add(doctorLocation);
+           doctorLocationList.add(new DoctorLocationEntity(doctorLocation));
         }
 
         DoctorLocationSyncRQ doctorLocationSyncRQ = new DoctorLocationSyncRQ();
         doctorLocationSyncRQ.setData(doctorLocationList);
 
-        DoctorLocationSyncRS syncedObjects = syncLocations.sync(doctorLocationSyncRQ);
+        syncLocations.sync(doctorLocationSyncRQ, new Callback<DoctorLocationSyncRS>() {
 
-        realm.beginTransaction();
-        realm.copyToRealmOrUpdate(syncedObjects.getData());
-        realm.commitTransaction();
+            @Override
+            public void success(DoctorLocationSyncRS syncedObjects, Response response) {
+                List<DoctorLocation> locationsSynced = new ArrayList<>();
+                for (DoctorLocationEntity doctorLocationEntity : syncedObjects.getData()) {
+                    locationsSynced.add(doctorLocationEntity.translate());
+                }
+
+                realm.beginTransaction();
+                realm.copyToRealmOrUpdate(locationsSynced);
+                realm.commitTransaction();
+
+                Toast.makeText(MedicalLocator.this, "Las ubicaciones han sido sincronizadas", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                Toast.makeText(MedicalLocator.this, "Algo fue anduvo mal, intenta más tarde", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
 
     }
 

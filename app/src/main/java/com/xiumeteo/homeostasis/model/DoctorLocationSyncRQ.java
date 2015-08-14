@@ -8,13 +8,13 @@ import java.util.List;
  */
 public class DoctorLocationSyncRQ implements Serializable{
 
-    private List<DoctorLocation> data;
+    private List<DoctorLocationEntity> data;
 
-    public List<DoctorLocation> getData() {
+    public List<DoctorLocationEntity> getData() {
         return data;
     }
 
-    public void setData(List<DoctorLocation> data) {
+    public void setData(List<DoctorLocationEntity> data) {
         this.data = data;
     }
 }

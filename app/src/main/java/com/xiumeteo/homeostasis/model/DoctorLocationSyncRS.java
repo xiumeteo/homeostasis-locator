@@ -9,7 +9,7 @@ import java.util.List;
 public class DoctorLocationSyncRS implements Serializable{
 
     private String status;
-    private List<DoctorLocation> data;
+    private List<DoctorLocationEntity> data;
 
     public String getStatus() {
         return status;
@@ -19,11 +19,11 @@ public class DoctorLocationSyncRS implements Serializable{
         this.status = status;
     }
 
-    public List<DoctorLocation> getData() {
+    public List<DoctorLocationEntity> getData() {
         return data;
     }
 
-    public void setData(List<DoctorLocation> data) {
+    public void setData(List<DoctorLocationEntity> data) {
         this.data = data;
     }
 }
