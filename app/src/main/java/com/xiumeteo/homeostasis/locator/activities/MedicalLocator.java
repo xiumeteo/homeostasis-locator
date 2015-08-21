@@ -8,14 +8,21 @@ import android.location.Location;
 import com.google.android.gms.location.LocationListener;
 
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
+
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -45,10 +52,9 @@ import retrofit.RestAdapter;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
-import static android.widget.Toast.*;
 
 
-public class MedicalLocator extends Activity implements
+public class MedicalLocator extends ActionBarActivity implements
         AddNewDoctorNameDialog.AddNewDoctorNameDialogListener,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
         LocationListener{
@@ -59,7 +65,6 @@ public class MedicalLocator extends Activity implements
     private String NO_RESULTS_MESSAGE ;
     private GoogleApiClient locationsServiceClient;
     private Location lastLocation;
-    private ProgressBar syncProgressBar;
     private SyncLocations syncLocations;
 
     private DialogInterface.OnClickListener onCancel = new DialogInterface.OnClickListener() {
@@ -131,8 +136,27 @@ public class MedicalLocator extends Activity implements
                 .build();
         
         syncLocations = restAdapter.create(SyncLocations.class);
-        syncProgressBar = (ProgressBar) findViewById(R.id.syncProgressBar);
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_sync:
+                syncDoctorsLocations();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override
@@ -236,7 +260,7 @@ public class MedicalLocator extends Activity implements
         System.out.println(location.getName()+" lat:"+location.getLatitude()+
                 " lon:"+location.getLongitude());
 
-        makeText(this, doctorName+getString(R.string.saved), LENGTH_SHORT).show();
+        Snackbar.make(findViewById(android.R.id.content), doctorName + getString(R.string.saved), Snackbar.LENGTH_SHORT).show();
         searchField.setText("");
         searchForDoctors();
 
@@ -244,7 +268,7 @@ public class MedicalLocator extends Activity implements
 
     @Override
     public void onConnected(Bundle bundle) {
-        makeText(this, "ACQUIRING LOCATION...", LENGTH_SHORT).show();
+        Snackbar.make(findViewById(android.R.id.content), "ACQUIRING LOCATION...", Snackbar.LENGTH_SHORT).show();
         startLocationRequest();
     }
 
@@ -261,7 +285,7 @@ public class MedicalLocator extends Activity implements
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
         System.err.println(connectionResult.getErrorCode());
-        Toast.makeText(this, connectionResult.toString(), Toast.LENGTH_LONG).show();
+//        Snackbar.make(findViewById(android.R.id.content), connectionResult.toString(), Snackbar.LENGTH_LONG).show();
     }
 
     private LocationRequest createLocationRequest() {
@@ -277,17 +301,20 @@ public class MedicalLocator extends Activity implements
     public void onLocationChanged(Location location) {
         if(location!=null){
             lastLocation = location;
-            Toast.makeText(this, "LOCATION ACQUIRED", Toast.LENGTH_LONG);
+            Snackbar.make(findViewById(android.R.id.content), "LOCATION ACQUIRED", Snackbar.LENGTH_LONG);
         }
     }
 
-    public void syncDoctorsLocations(View view){
-
-
-
+    public void syncDoctorsLocations(){
         RealmResults<DoctorLocation> doctorLocationsToSync = realm.where(DoctorLocation.class)
                 .equalTo("id", "")
                 .findAll();
+
+        if(doctorLocationsToSync.isEmpty()){
+            Snackbar.make(findViewById(android.R.id.content), "Nada que sincronizar", Snackbar.LENGTH_SHORT).show();
+            return;
+
+        }
 
         List<DoctorLocationEntity> doctorLocationList = new ArrayList<>();
         for (DoctorLocation doctorLocation: doctorLocationsToSync){
@@ -310,12 +337,12 @@ public class MedicalLocator extends Activity implements
                 realm.copyToRealmOrUpdate(locationsSynced);
                 realm.commitTransaction();
 
-                Toast.makeText(MedicalLocator.this, "Las ubicaciones han sido sincronizadas", Toast.LENGTH_SHORT).show();
+                Snackbar.make(MedicalLocator.this.findViewById(android.R.id.content), "Las ubicaciones han sido sincronizadas", Snackbar.LENGTH_SHORT).show();
             }
 
             @Override
             public void failure(RetrofitError error) {
-                Toast.makeText(MedicalLocator.this, "Algo fue anduvo mal, intenta más tarde", Toast.LENGTH_SHORT).show();
+                Snackbar.make(MedicalLocator.this.findViewById(android.R.id.content), "Algo fue anduvo mal, intenta más tarde", Snackbar.LENGTH_SHORT).show();
             }
         });
 

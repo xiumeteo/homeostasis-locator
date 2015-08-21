@@ -1,38 +1,33 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context="com.xiumeteo.homeostasis.activities.PharmacyUpdateQuantitiesActivity"
-    android:layout_height="match_parent" android:layout_width="match_parent">
+    android:layout_height="match_parent"
+    android:id="@+id/medicalLocatorLayout"
+    android:layout_width="match_parent">
+
+
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <include
+            layout="@layout/toolbar"/>
 
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
 
-        <EditText
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:id="@+id/searchDoctorName"
-            android:inputType="text" />
-
-        <Button
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/sync"
-            android:id="@+id/searchDoctorNameButton"
-            android:onClick="syncDoctorsLocations"/>
-    </LinearLayout>
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/searchDoctorName"
+                android:inputType="text"
+                android:hint="Buscar..."/>
+        </android.support.design.widget.TextInputLayout>
 
     <ScrollView
         android:layout_width="match_parent"
@@ -51,21 +46,15 @@
     </ScrollView>
     </LinearLayout>
 
-    <Button
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_gravity="bottom"
-        android:text="@string/saveDoctorLocation"
-        android:id="@+id/saveDoctorLocation"
-        android:onClick="openSaveNewDoctor"/>
-
-    <ProgressBar
+    <android.support.design.widget.FloatingActionButton
+        app:fabSize="normal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/syncProgressBar"
-        android:indeterminate="true"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true" />
-</RelativeLayout>
+        android:id="@+id/saveDoctorLocation"
+        android:onClick="openSaveNewDoctor"
+        android:layout_margin="16dp"
+        android:layout_gravity="bottom|right"
+        android:src="@drawable/ic_add"/>
+
+
+</android.support.design.widget.CoordinatorLayout>
