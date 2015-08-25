@@ -1,4 +1,4 @@
-package com.xiumeteo.homeostasis.locator.sync;
+package com.xiumeteo.homeostasis.locator.services.sync;
 
 import com.xiumeteo.homeostasis.model.DoctorLocation;
 import com.xiumeteo.homeostasis.model.DoctorLocationSyncRQ;

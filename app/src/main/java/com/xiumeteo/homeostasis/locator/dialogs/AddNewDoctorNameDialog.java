@@ -12,6 +12,7 @@ import android.view.WindowManager;
 import android.widget.EditText;
 
 import com.xiumeteo.homeostasis.locator.R;
+import com.xiumeteo.homeostasis.locator.listeners.AddNewDoctorNameDialogListener;
 
 /**
  * Created by xiumeteo on 7/9/15.
@@ -22,13 +23,6 @@ public class AddNewDoctorNameDialog extends DialogFragment {
 
     public EditText getDoctorName() {
         return doctorName;
-    }
-
-    /* The activity that creates an instance of this dialog fragment must
-            * implement this interface in order to receive event callbacks.
-            * Each method passes the DialogFragment in case the host needs to query it. */
-    public interface AddNewDoctorNameDialogListener {
-        public void onDialogPositiveClick(AddNewDoctorNameDialog dialog);
     }
 
     private AddNewDoctorNameDialogListener listener;

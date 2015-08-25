@@ -1,4 +1,4 @@
-package com.xiumeteo.homeostasis.model.migration;
+package com.xiumeteo.homeostasis.locator.services.migration;
 
 import com.xiumeteo.homeostasis.model.DoctorLocation;
 

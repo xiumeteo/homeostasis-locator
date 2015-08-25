@@ -2,7 +2,7 @@ package com.xiumeteo.homeostasis.locator.activities;
 
 import android.app.Application;
 
-import com.xiumeteo.homeostasis.model.migration.MigrationManager;
+import com.xiumeteo.homeostasis.locator.services.migration.MigrationManager;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
