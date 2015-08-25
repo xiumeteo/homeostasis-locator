@@ -33,7 +33,7 @@ public class OnClickDoctorNameListener implements View.OnClickListener {
         onLaunchListener.setDoctorName(doctorName);
         onDeleteListener.setDoctorName(doctorName);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(medicalLocator);
+        AlertDialog.Builder builder = new AlertDialog.Builder(medicalLocator, R.style.AddNewDoctorDialog);
         builder.setPositiveButton(R.string.get_directions, onLaunchListener);
         builder.setNegativeButton(R.string.delete, onDeleteListener);
         builder.setNeutralButton(R.string.cancel, onCancel);

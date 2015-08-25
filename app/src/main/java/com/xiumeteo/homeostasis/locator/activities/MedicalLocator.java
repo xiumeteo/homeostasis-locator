@@ -1,5 +1,7 @@
 package com.xiumeteo.homeostasis.locator.activities;
 
+import android.app.DialogFragment;
+import android.app.ProgressDialog;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -54,7 +56,7 @@ public class MedicalLocator extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_medical_locator);
-        content = content;
+        content = findViewById(android.R.id.content);
 
         buildGoogleApiClient();
         locationsServiceClient.connect();
@@ -94,11 +96,15 @@ public class MedicalLocator extends AppCompatActivity implements
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_sync:
-                syncManager.syncDoctorsLocations();
+                syncLocations();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void syncLocations() {
+        syncManager.syncDoctorsLocations();
     }
 
     @Override
@@ -134,7 +140,7 @@ public class MedicalLocator extends AppCompatActivity implements
             for (DoctorLocation location : doctorLocations) {
 
                 TextView doctorName = attachMessageToResults(location.getName());
-                doctorName.setTextAppearance(this, R.style.TextAppearance_AppCompat_Medium);
+                doctorName.setTextAppearance(this, R.style.TextAppearance_AppCompat_Button);
                 doctorName.setOnClickListener(onClickDoctorNameListener);
                 System.out.println(location.getName());
                 resultsLayout.addView(doctorName);
@@ -156,17 +162,20 @@ public class MedicalLocator extends AppCompatActivity implements
 
     public void searchForDoctors() {
         String nameToSearch = searchField.getText().toString();
-        Collection<DoctorLocation> doctorLocationsByName;
-        doctorLocationsByName = locationsDao.findBy(nameToSearch);
+        Collection<DoctorLocation> doctorLocationsByName = locationsDao.findBy(nameToSearch);
         renderDoctorLocations(doctorLocationsByName);
     }
 
 
     @Override
     public void onDialogPositiveClick(AddNewDoctorNameDialog dialog) {
-        Editable doctorName = dialog.getDoctorName().getText();
+        String doctorName = dialog.getDoctorName().getText().toString();
+        if(doctorName.trim().isEmpty()){
+            Snackbar.make(content, "Debes poner un nombre", Snackbar.LENGTH_SHORT).show();
+            return;
+        }
         DoctorLocation location = new DoctorLocation();
-        location.setName(doctorName.toString());
+        location.setName(doctorName);
         if (lastLocation != null) {
             location.setLatitude(lastLocation.getLatitude());
             location.setLongitude(lastLocation.getLongitude());
@@ -211,7 +220,7 @@ public class MedicalLocator extends AppCompatActivity implements
         LocationRequest locationRequest = new LocationRequest();
         locationRequest.setInterval(10000);
         locationRequest.setFastestInterval(5000);
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACYt);
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         return locationRequest;
     }
 
@@ -224,5 +233,8 @@ public class MedicalLocator extends AppCompatActivity implements
         }
     }
 
-
+    public void openSaveNewDoctor(View view) {
+        DialogFragment newFragment = new AddNewDoctorNameDialog();
+        newFragment.show(getFragmentManager(), "doctorName");
+    }
 }

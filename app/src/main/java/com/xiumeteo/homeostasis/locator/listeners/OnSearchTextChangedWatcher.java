@@ -13,7 +13,7 @@ public class OnSearchTextChangedWatcher implements TextWatcher {
     private MedicalLocator medicalLocator;
 
     public OnSearchTextChangedWatcher(MedicalLocator medicalLocator){
-
+        this.medicalLocator = medicalLocator;
     }
 
     @Override

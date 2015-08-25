@@ -1,8 +1,10 @@
 package com.xiumeteo.homeostasis.locator.services.sync;
 
+import android.app.ProgressDialog;
 import android.support.design.widget.Snackbar;
 import android.view.View;
 
+import com.xiumeteo.homeostasis.locator.R;
 import com.xiumeteo.homeostasis.locator.services.dao.LocationsDao;
 import com.xiumeteo.homeostasis.model.DoctorLocation;
 import com.xiumeteo.homeostasis.model.DoctorLocationEntity;
@@ -10,6 +12,7 @@ import com.xiumeteo.homeostasis.model.DoctorLocationSyncRQ;
 import com.xiumeteo.homeostasis.model.DoctorLocationSyncRS;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import io.realm.RealmResults;
@@ -33,9 +36,16 @@ public class SyncManager {
     }
 
     public void syncDoctorsLocations(){
-        RealmResults<DoctorLocation> doctorLocationsToSync = locationsDao.getAllWithoutId();
+        final ProgressDialog progressDialog = new ProgressDialog(view.getContext(),
+                R.style.Base_Theme_AppCompat_Dialog);
+        progressDialog.setTitle(R.string.syncing);
+        progressDialog.setIndeterminate(true);
+        progressDialog.show();
+
+        Collection<DoctorLocation> doctorLocationsToSync = locationsDao.getAllWithoutId();
 
         if(doctorLocationsToSync.isEmpty()){
+            progressDialog.dismiss();
             Snackbar.make(view, "Nada que sincronizar", Snackbar.LENGTH_SHORT).show();
             return;
 
@@ -59,12 +69,13 @@ public class SyncManager {
                 }
 
                 locationsDao.save(locationsSynced);
-
+                progressDialog.dismiss();
                 Snackbar.make(view, "Las ubicaciones han sido sincronizadas", Snackbar.LENGTH_SHORT).show();
             }
 
             @Override
             public void failure(RetrofitError error) {
+                progressDialog.dismiss();
                 Snackbar.make(view, "Algo fue anduvo mal, intenta más tarde", Snackbar.LENGTH_SHORT).show();
             }
         });

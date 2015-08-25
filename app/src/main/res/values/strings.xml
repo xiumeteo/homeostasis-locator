@@ -15,4 +15,5 @@
     <string name="something_weird_happened">Algo raro sucedió intenta de nuevo o avisa al desarrolador</string>
     <string name="delete">Borrar</string>
     <string name="get_directions">Direcciones</string>
+    <string name="syncing">Sincronizando...</string>
 </resources>

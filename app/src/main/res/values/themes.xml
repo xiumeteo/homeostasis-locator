@@ -9,5 +9,6 @@
         </style>
 
     <color name="colorPrimary">#24a5e1</color>
+    <color name="white">#FFF</color>
 </resources>
 
